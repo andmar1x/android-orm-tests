@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "org.andmar1x.androidormtests"
         minSdkVersion 15
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -17,18 +18,38 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
+
+def dbflowVer = '1.8.1'
+def ollieVer = '0.3.1'
+def powermockVer = '1.6.1'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.android.support:appcompat-v7:22.0.0'
-    compile 'com.google.code.gson:gson:2.3.1'
+    compile "com.android.support:appcompat-v7:22.1.0"
+    compile "com.google.code.gson:gson:2.3.1"
 
-    compile 'io.realm:realm-android:0.80.2-SNAPSHOT'
+    // DBFlow
+    apt "com.raizlabs.android:DBFlow-Compiler:$dbflowVer"
+    compile "com.raizlabs.android:DBFlow-Core:$dbflowVer"
+    compile "com.raizlabs.android:DBFlow:$dbflowVer"
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile 'org.powermock:powermock-module-junit4:1.6.1'
-    testCompile 'org.powermock:powermock-api-mockito:1.6.1'
+    // Realm
+    compile "io.realm:realm-android:0.80.2-SNAPSHOT"
+
+    // Ollie
+    compile "com.michaelpardo:ollie:$ollieVer"
+    provided "com.michaelpardo:ollie-compiler:$ollieVer"
+
+    // OrmLite
+    compile "com.j256.ormlite:ormlite-android:4.48"
+
+    testCompile "junit:junit:4.12"
+    testCompile "org.mockito:mockito-core:1.9.5"
+    testCompile "org.powermock:powermock-module-junit4:$powermockVer"
+    testCompile "org.powermock:powermock-api-mockito:$powermockVer"
 }
