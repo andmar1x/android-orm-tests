@@ -43,7 +43,7 @@ dependencies {
 
     // Ollie
     compile "com.michaelpardo:ollie:$ollieVer"
-    provided "com.michaelpardo:ollie-compiler:$ollieVer"
+    apt "com.michaelpardo:ollie-compiler:$ollieVer" // 'apt' except 'provided' due https://github.com/pardom/Ollie/issues/40
 
     // OrmLite
     compile "com.j256.ormlite:ormlite-android:4.48"

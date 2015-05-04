@@ -20,14 +20,14 @@ public class OllieTest extends DatabaseTestCase {
         super.setUp();
 
         Ollie.init(mContext, EntryDb.NAME, EntryDb.VERSION);
-        // Delete.from(Entry.class).execute(); not works now. See https://github.com/pardom/Ollie/issues/23
-        Ollie.getDatabase().delete(Entry.TABLE_NAME, "", new String[]{});
     }
 
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
 
+        // Delete.from(Entry.class).execute(); not works now. See https://github.com/pardom/Ollie/issues/23
+        Ollie.getDatabase().delete(Entry.TABLE_NAME, "", new String[]{});
         Ollie.getDatabase().close();
     }
 
