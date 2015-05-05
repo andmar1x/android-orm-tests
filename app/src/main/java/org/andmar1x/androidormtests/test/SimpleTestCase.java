@@ -5,7 +5,7 @@ import android.test.AndroidTestCase;
 /**
  * Created by andmar1x on 5/2/15.
  */
-public abstract class DatabaseTestCase extends AndroidTestCase {
+public abstract class SimpleTestCase extends AndroidTestCase {
 
     @Override
     protected void setUp() throws Exception {

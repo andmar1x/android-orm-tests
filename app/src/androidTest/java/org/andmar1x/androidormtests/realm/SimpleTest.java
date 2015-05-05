@@ -1,7 +1,7 @@
-package org.andmar1x.androidormtests;
+package org.andmar1x.androidormtests.realm;
 
-import org.andmar1x.androidormtests.realm.Entry;
-import org.andmar1x.androidormtests.test.DatabaseTestCase;
+import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +11,7 @@ import io.realm.Realm;
 /**
  * Created by andmar1x on 5/1/15.
  */
-public class RealmTest extends DatabaseTestCase {
+public class SimpleTest extends SimpleTestCase {
 
     protected Realm mRealm;
 
@@ -20,7 +20,6 @@ public class RealmTest extends DatabaseTestCase {
         super.setUp();
 
         Realm.deleteRealmFile(mContext);
-
         mRealm = Realm.getInstance(mContext);
     }
 

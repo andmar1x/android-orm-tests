@@ -84,9 +84,9 @@ public class EntryDbHelper extends SQLiteOpenHelper {
         mDao = null;
     }
 
-    public Dao<Entry, Long> getDao() throws SQLException {
+    public Dao<Entry, Long> getEntryDao() throws SQLException {
         if (mDao == null) {
-            mDao = getDao(Entry.class);
+            mDao = getEntryDao(Entry.class);
         }
         return mDao;
     }
@@ -113,7 +113,7 @@ public class EntryDbHelper extends SQLiteOpenHelper {
         }
     }
 
-    private <D extends Dao<T, ?>, T> D getDao(Class<T> clazz) throws SQLException {
+    private <D extends Dao<T, ?>, T> D getEntryDao(Class<T> clazz) throws SQLException {
         Dao<T, ?> dao = DaoManager.lookupDao(mConnectionSource, clazz);
         if (dao == null) {
             DatabaseTableConfig<T> tableConfig = DatabaseTableConfigUtil.fromClass(mConnectionSource, clazz);

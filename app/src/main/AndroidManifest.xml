@@ -3,6 +3,8 @@
     package="org.andmar1x.androidormtests"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -16,6 +18,26 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".dbflow.DatabaseActivity"
+            android:label="@string/title_activity_database">
+        </activity>
+        <activity
+            android:name=".greendao.DatabaseActivity"
+            android:label="@string/title_activity_database">
+        </activity>
+        <activity
+            android:name=".ollie.DatabaseActivity"
+            android:label="@string/title_activity_database">
+        </activity>
+        <activity
+            android:name=".ormlite.DatabaseActivity"
+            android:label="@string/title_activity_database">
+        </activity>
+        <activity
+            android:name=".realm.DatabaseActivity"
+            android:label="@string/title_activity_database">
         </activity>
     </application>
 

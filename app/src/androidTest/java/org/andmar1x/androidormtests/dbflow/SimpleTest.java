@@ -1,4 +1,4 @@
-package org.andmar1x.androidormtests;
+package org.andmar1x.androidormtests.dbflow;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -6,10 +6,8 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
-import org.andmar1x.androidormtests.dbflow.Entry;
-import org.andmar1x.androidormtests.dbflow.Entry$Table;
-import org.andmar1x.androidormtests.dbflow.EntryDb;
-import org.andmar1x.androidormtests.test.DatabaseTestCase;
+import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.util.Date;
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.List;
 /**
  * Created by andmar1x on 5/4/15.
  */
-public class DbFlowTest extends DatabaseTestCase {
+public class SimpleTest extends SimpleTestCase {
 
     @Override
     protected void setUp() throws Exception {

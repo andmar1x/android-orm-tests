@@ -1,8 +1,7 @@
-package org.andmar1x.androidormtests;
+package org.andmar1x.androidormtests.ollie;
 
-import org.andmar1x.androidormtests.ollie.Entry;
-import org.andmar1x.androidormtests.ollie.EntryDb;
-import org.andmar1x.androidormtests.test.DatabaseTestCase;
+import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +12,7 @@ import ollie.query.Select;
 /**
  * Created by andmar1x on 5/1/15.
  */
-public class OllieTest extends DatabaseTestCase {
+public class SimpleTest extends SimpleTestCase {
 
     @Override
     protected void setUp() throws Exception {
