@@ -58,7 +58,7 @@ public class DatabaseActivity extends TestActivity {
 
             mEntryDao.create(entry);
 
-            List<Entry> results = mEntryDao.query(mEntryDao.queryBuilder().where().prepare());
+            List<Entry> results = mEntryDao.query(mEntryDao.queryBuilder().prepare());
             if (!results.isEmpty()) {
                 TextView textView = (TextView) findViewById(R.id.textView);
                 textView.setText(results.get(0).stringValue);
