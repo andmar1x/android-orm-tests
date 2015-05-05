@@ -1,9 +1,11 @@
-package org.andmar1x.androidormtests.ormlite;
+package org.andmar1x.androidormtests.simple;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
 
 import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.ormlite.Entry;
+import org.andmar1x.androidormtests.ormlite.EntryDbHelper;
 import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.sql.SQLException;
@@ -14,7 +16,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by andmar1x on 5/4/15.
  */
-public class SimpleTest extends SimpleTestCase {
+public class OrmLiteSimpleTest extends SimpleTestCase {
 
     private EntryDbHelper mEntryDbHelper;
     private Dao<Entry, Long> mEntryDao;

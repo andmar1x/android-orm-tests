@@ -1,6 +1,8 @@
-package org.andmar1x.androidormtests.ollie;
+package org.andmar1x.androidormtests.simple;
 
 import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.ollie.Entry;
+import org.andmar1x.androidormtests.ollie.EntryDb;
 import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.util.Date;
@@ -12,7 +14,7 @@ import ollie.query.Select;
 /**
  * Created by andmar1x on 5/1/15.
  */
-public class SimpleTest extends SimpleTestCase {
+public class OllieSimpleTest extends SimpleTestCase {
 
     @Override
     protected void setUp() throws Exception {
@@ -27,7 +29,7 @@ public class SimpleTest extends SimpleTestCase {
 
         // Delete.from(Entry.class).execute(); not works now. See https://github.com/pardom/Ollie/issues/23
         Ollie.getDatabase().delete(Entry.TABLE_NAME, "", new String[]{});
-        Ollie.getDatabase().close();
+//        Ollie.getDatabase().close();
     }
 
     @Override

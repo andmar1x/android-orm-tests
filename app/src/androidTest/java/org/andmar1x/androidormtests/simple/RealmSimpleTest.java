@@ -1,6 +1,7 @@
-package org.andmar1x.androidormtests.realm;
+package org.andmar1x.androidormtests.simple;
 
 import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.realm.Entry;
 import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.util.Date;
@@ -11,7 +12,7 @@ import io.realm.Realm;
 /**
  * Created by andmar1x on 5/1/15.
  */
-public class SimpleTest extends SimpleTestCase {
+public class RealmSimpleTest extends SimpleTestCase {
 
     protected Realm mRealm;
 

@@ -28,7 +28,7 @@ public class DatabaseActivity extends TestActivity {
 
         // Delete.from(Entry.class).execute(); not works now. See https://github.com/pardom/Ollie/issues/23
         Ollie.getDatabase().delete(Entry.TABLE_NAME, "", new String[]{});
-        Ollie.getDatabase().close();
+//        Ollie.getDatabase().close();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class DatabaseActivity extends TestActivity {
         entry.longValue = (long) i;
         entry.floatValue = (float) i;
         entry.doubleValue = (double) i;
-        entry.stringValue = Entry.class.getSimpleName() + " " + i;
+        entry.stringValue = String.valueOf(i);
         entry.dateValue = new Date();
 
         entry.save();

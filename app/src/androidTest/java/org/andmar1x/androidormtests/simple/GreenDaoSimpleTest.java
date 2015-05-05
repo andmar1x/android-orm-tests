@@ -1,8 +1,13 @@
-package org.andmar1x.androidormtests.greendao;
+package org.andmar1x.androidormtests.simple;
 
 import android.database.sqlite.SQLiteDatabase;
 
 import org.andmar1x.androidormtests.Consts;
+import org.andmar1x.androidormtests.greendao.DaoMaster;
+import org.andmar1x.androidormtests.greendao.DaoSession;
+import org.andmar1x.androidormtests.greendao.Entry;
+import org.andmar1x.androidormtests.greendao.EntryDao;
+import org.andmar1x.androidormtests.greendao.EntryDb;
 import org.andmar1x.androidormtests.test.SimpleTestCase;
 
 import java.util.Date;
@@ -11,7 +16,7 @@ import java.util.List;
 /**
  * Created by andmar1x on 5/4/15.
  */
-public class SimpleTest extends SimpleTestCase {
+public class GreenDaoSimpleTest extends SimpleTestCase {
 
     private DaoSession mDaoSession;
     private EntryDao mEntryDao;
