@@ -37,6 +37,8 @@ public class DatabaseActivity extends TestActivity {
     public void onClick(View v) {
         int i = mAddEntryButton.hashCode();
 
+        mRealm.beginTransaction();
+
         Entry entry = mRealm.createObject(Entry.class);
         entry.setBooleanValue(i % 2 == 0);
         entry.setShortValue((short) i);
@@ -46,6 +48,8 @@ public class DatabaseActivity extends TestActivity {
         entry.setDoubleValue(i);
         entry.setStringValue(String.valueOf(i));
         entry.setDateValue(new Date());
+
+        mRealm.commitTransaction();
 
         List<Entry> results = mRealm.where(Entry.class).findAll();
         if (!results.isEmpty()) {

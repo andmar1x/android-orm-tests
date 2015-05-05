@@ -40,5 +40,7 @@ public class RobotiumTestCase<T extends TestActivity> extends ActivityInstrument
 
         Button button = mSolo.getButton("Add Entry");
         assertTrue("Entry is not inserted", mSolo.searchText(String.valueOf(button.hashCode())));
+
+        mSolo.finishOpenedActivities();
     }
 }
