@@ -20,6 +20,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activeandroid.DatabaseActivity"
+            android:label="@string/title_activity_database">
+        </activity>
+        <activity
             android:name=".dbflow.DatabaseActivity"
             android:label="@string/title_activity_database">
         </activity>

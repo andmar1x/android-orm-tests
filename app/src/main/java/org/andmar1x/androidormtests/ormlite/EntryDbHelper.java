@@ -13,6 +13,8 @@ import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.DatabaseTableConfig;
 import com.j256.ormlite.table.TableUtils;
 
+import org.andmar1x.androidormtests.BuildConfig;
+
 import java.sql.SQLException;
 
 /**
@@ -21,7 +23,7 @@ import java.sql.SQLException;
 public class EntryDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "ormlite_db.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = BuildConfig.VERSION_CODE;
 
     protected AndroidConnectionSource mConnectionSource = new AndroidConnectionSource(this);
 

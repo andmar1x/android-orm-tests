@@ -1,4 +1,4 @@
-package org.andmar1x.androidormtests.greendao;
+package org.andmar1x.androidormtests.activeandroid;
 
 import org.andmar1x.androidormtests.BuildConfig;
 
@@ -7,7 +7,7 @@ import org.andmar1x.androidormtests.BuildConfig;
  */
 public class EntryDb {
 
-    public static final String NAME = "greendao_test";
+    public static final String NAME = "activeandroid_test";
 
     public static final int VERSION = BuildConfig.VERSION_CODE;
 }
