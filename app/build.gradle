@@ -48,7 +48,8 @@ dependencies {
 
     // Ollie
     compile "com.michaelpardo:ollie:$ollieVer"
-    apt "com.michaelpardo:ollie-compiler:$ollieVer" // 'apt' except 'provided' due https://github.com/pardom/Ollie/issues/40
+    // 'apt' except 'provided' due https://github.com/pardom/Ollie/issues/40
+    apt "com.michaelpardo:ollie-compiler:$ollieVer"
 
     // OrmLite
     compile "com.j256.ormlite:ormlite-android:4.48"
@@ -65,5 +66,4 @@ dependencies {
     testCompile "org.mockito:mockito-core:1.9.5"
     testCompile "org.powermock:powermock-module-junit4:$powermockVer"
     testCompile "org.powermock:powermock-api-mockito:$powermockVer"
-//    testCompile "com.jayway.android.robotium:robotium-solo:5.3.1"
 }
