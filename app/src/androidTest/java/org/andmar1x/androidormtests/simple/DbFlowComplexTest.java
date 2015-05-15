@@ -13,6 +13,8 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.andmar1x.androidormtests.Consts;
 import org.andmar1x.androidormtests.dbflow.Entry;
+import org.andmar1x.androidormtests.dbflow.Entry1;
+import org.andmar1x.androidormtests.dbflow.Entry2;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,9 +26,9 @@ import java.util.concurrent.CountDownLatch;
  */
 public class DbFlowComplexTest extends AndroidTestCase {
 
-    public static final int THREAD_COUNT = 4;
+    public static final int THREAD_COUNT = 8;
 
-    private ArrayList<Thread> mThreads = new ArrayList<>();
+    private final ArrayList<Thread> mThreads = new ArrayList<>();
 
     @Override
     protected void setUp() throws Exception {
@@ -41,19 +43,35 @@ public class DbFlowComplexTest extends AndroidTestCase {
 
         mThreads.clear();
 
-        // Clear database
+        // Clear databases
+//        if ()
         new Delete()
                 .from(Entry.class)
+                .query();
+        new Delete()
+                .from(Entry1.class)
+                .query();
+        new Delete()
+                .from(Entry2.class)
                 .query();
         FlowManager.destroy();
     }
 
-    public void testSingleInsertToOneTable() throws Throwable {
-        CountDownLatch countDownLatch = new CountDownLatch(Consts.ITEMS_COUNT * THREAD_COUNT);
+    public void testInsertToOneTable() throws Throwable {
+        final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        final EntryFactory<Entry> entryFactory = new EntryFactory<>(Entry.class);
 
         for (int i = 0; i < THREAD_COUNT; ++i) {
-            SingleInsertThread thread = new SingleInsertThread(countDownLatch);
-            mThreads.add(thread);
+            mThreads.add(new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        entryFactory.addTransaction(countDownLatch);
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
         }
 
         for (Thread thread : mThreads) {
@@ -74,12 +92,27 @@ public class DbFlowComplexTest extends AndroidTestCase {
         assertEquals(Consts.ITEMS_COUNT * THREAD_COUNT, count);
     }
 
-    public void testListInsertToOneTable() {
-        CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+    public void testInsertToTwoTables() throws Throwable {
+        final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        final EntryFactory<Entry1> entryFactory1 = new EntryFactory<>(Entry1.class);
+        final EntryFactory<Entry2> entryFactory2 = new EntryFactory<>(Entry2.class);
 
         for (int i = 0; i < THREAD_COUNT; ++i) {
-            ListInsertThread thread = new ListInsertThread(countDownLatch);
-            mThreads.add(thread);
+            final boolean b = (i % 2 == 0);
+            mThreads.add(new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        if (b) {
+                            entryFactory1.addTransaction(countDownLatch);
+                        } else {
+                            entryFactory2.addTransaction(countDownLatch);
+                        }
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
         }
 
         for (Thread thread : mThreads) {
@@ -92,104 +125,64 @@ public class DbFlowComplexTest extends AndroidTestCase {
             fail();
         }
 
-        long count = new Select()
+        long count1 = new Select()
                 .count()
-                .from(Entry.class)
+                .from(Entry1.class)
+                .count();
+        long count2 = new Select()
+                .count()
+                .from(Entry2.class)
                 .count();
 
-        assertEquals(Consts.ITEMS_COUNT * THREAD_COUNT, count);
+        assertEquals(Consts.ITEMS_COUNT * THREAD_COUNT, count1 + count2);
     }
 
-    private Entry createEntry(int i) {
-        Entry entry = new Entry();
-        entry.booleanValue = (i % 2 == 0);
-        entry.shortValue = (short) i;
-        entry.intValue = i;
-        entry.floatValue = (float) i;
-        entry.doubleValue = (double) i;
-        entry.stringValue = Entry.class.getSimpleName() + " " + i;
-        entry.dateValue = new Date();
+    private class EntryFactory<T extends Entry> {
 
-        return entry;
-    }
+        private final Class<T> mHandlerClass;
 
-    private void addSingleInsertTransaction(Entry entry, CountDownLatch countDownLatch) {
-        ProcessModelInfo<Entry> processModelInfo = ProcessModelInfo.withModels(entry)
-                .result(new TransactListener(countDownLatch));
-        InsertModelTransaction<Entry> insertModelTransaction = new InsertModelTransaction<>(processModelInfo);
-        TransactionManager.getInstance().addTransaction(insertModelTransaction);
-    }
-
-    private void addListInsertTransaction(List<Entry> entries, CountDownLatch countDownLatch) {
-        ProcessModelInfo<Entry> processModelInfo = ProcessModelInfo.withModels(entries)
-                .result(new TransactListener(countDownLatch));
-        InsertModelTransaction<Entry> insertModelTransaction = new InsertModelTransaction<>(processModelInfo);
-        TransactionManager.getInstance().addTransaction(insertModelTransaction);
-    }
-
-    private class TransactListener implements TransactionListener<List<Entry>> {
-
-        private final CountDownLatch mCountDownLatch;
-
-        public TransactListener(CountDownLatch countDownLatch) {
-            mCountDownLatch = countDownLatch;
+        public EntryFactory(final Class<T> handlerClass) {
+            mHandlerClass = handlerClass;
         }
 
-        @Override
-        public void onResultReceived(List<Entry> entries) {
-            mCountDownLatch.countDown();
+        public T create(int val) throws IllegalAccessException, InstantiationException {
+            T entry = mHandlerClass.newInstance();
+            entry.booleanValue = (val % 2 == 0);
+            entry.shortValue = (short) val;
+            entry.intValue = val;
+            entry.floatValue = (float) val;
+            entry.doubleValue = (double) val;
+            entry.stringValue = " " + val;
+            entry.dateValue = new Date();
+            return entry;
         }
 
-        @Override
-        public boolean onReady(BaseTransaction<List<Entry>> baseTransaction) {
-            return true;
-        }
-
-        @Override
-        public boolean hasResult(BaseTransaction<List<Entry>> baseTransaction, List<Entry> entries) {
-            return true;
-        }
-    }
-
-    private class TestableEntry1 extends Entry {
-
-    }
-
-    private class TestableEntry2 extends Entry {
-
-    }
-
-    private class SingleInsertThread extends Thread {
-
-        private final CountDownLatch mCountDownLatch;
-
-        public SingleInsertThread(CountDownLatch countDownLatch) {
-            mCountDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
+        public void addTransaction(final CountDownLatch countDownLatch)
+                throws InstantiationException, IllegalAccessException {
+            List<T> entries = new ArrayList<>();
             for (int i = 1; i <= Consts.ITEMS_COUNT; ++i) {
-                addSingleInsertTransaction(createEntry(i), mCountDownLatch);
+                entries.add(create(i));
             }
-        }
-    }
 
-    private class ListInsertThread<T> extends Thread {
+            ProcessModelInfo<T> processModelInfo = ProcessModelInfo.withModels(entries)
+                    .result(new TransactionListener<List<T>>() {
+                        @Override
+                        public void onResultReceived(List<T> ts) {
+                            countDownLatch.countDown();
+                        }
 
-        private final CountDownLatch mCountDownLatch;
+                        @Override
+                        public boolean onReady(BaseTransaction<List<T>> baseTransaction) {
+                            return true;
+                        }
 
-        public ListInsertThread(CountDownLatch countDownLatch) {
-            mCountDownLatch = countDownLatch;
-        }
-
-        @Override
-        public void run() {
-            List<Entry> entries = new ArrayList<>();
-            for (int i = 1; i <= Consts.ITEMS_COUNT; ++i) {
-                entries.add(createEntry(i));
-            }
-            addListInsertTransaction(entries, mCountDownLatch);
+                        @Override
+                        public boolean hasResult(BaseTransaction<List<T>> baseTransaction, List<T> ts) {
+                            return true;
+                        }
+                    });
+            InsertModelTransaction<T> transaction = new InsertModelTransaction<>(processModelInfo);
+            TransactionManager.getInstance().addTransaction(transaction);
         }
     }
 }
