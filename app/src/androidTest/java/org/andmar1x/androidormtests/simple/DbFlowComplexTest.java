@@ -45,7 +45,7 @@ public class DbFlowComplexTest extends AndroidTestCase {
     }
 
     public void testInsertToOneTable() throws Throwable {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final CountDownLatch countDownLatch = new CountDownLatch(2);
         final EntryFactory<Entry> entryFactory = new EntryFactory<>(Entry.class);
         new Thread() {
             @Override
@@ -71,7 +71,7 @@ public class DbFlowComplexTest extends AndroidTestCase {
     }
 
     public void testInsertToTwoTables() throws Throwable {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final CountDownLatch countDownLatch = new CountDownLatch(2);
         final EntryFactory<Entry1> entryFactory1 = new EntryFactory<>(Entry1.class);
         new Thread() {
             @Override
