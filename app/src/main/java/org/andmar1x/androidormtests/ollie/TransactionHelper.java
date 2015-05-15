@@ -27,7 +27,9 @@ public class TransactionHelper {
 
     public interface Callback {
         void onProcess();
+
         void onFail();
+
         void onResultReceived();
     }
 }

@@ -1,6 +1,5 @@
 package org.andmar1x.androidormtests.simple;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
 import org.andmar1x.androidormtests.Consts;
@@ -10,9 +9,7 @@ import org.andmar1x.androidormtests.ollie.Entry2;
 import org.andmar1x.androidormtests.ollie.EntryDb;
 import org.andmar1x.androidormtests.ollie.TransactionHelper;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import ollie.Ollie;

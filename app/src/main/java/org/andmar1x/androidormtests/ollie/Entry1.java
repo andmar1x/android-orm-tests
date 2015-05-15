@@ -1,9 +1,5 @@
 package org.andmar1x.androidormtests.ollie;
 
-import java.util.Date;
-
-import ollie.Model;
-import ollie.annotation.Column;
 import ollie.annotation.Table;
 
 /**
