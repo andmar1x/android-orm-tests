@@ -26,10 +26,6 @@ import java.util.concurrent.CountDownLatch;
  */
 public class DbFlowComplexTest extends AndroidTestCase {
 
-    public static final int THREAD_COUNT = 8;
-
-    private final ArrayList<Thread> mThreads = new ArrayList<>();
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -41,100 +37,65 @@ public class DbFlowComplexTest extends AndroidTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
 
-        mThreads.clear();
-
         // Clear databases
-//        if ()
-        new Delete()
-                .from(Entry.class)
-                .query();
-        new Delete()
-                .from(Entry1.class)
-                .query();
-        new Delete()
-                .from(Entry2.class)
-                .query();
+        new Delete().from(Entry.class).query();
+        new Delete().from(Entry1.class).query();
+        new Delete().from(Entry2.class).query();
         FlowManager.destroy();
     }
 
     public void testInsertToOneTable() throws Throwable {
-        final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
         final EntryFactory<Entry> entryFactory = new EntryFactory<>(Entry.class);
-
-        for (int i = 0; i < THREAD_COUNT; ++i) {
-            mThreads.add(new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        entryFactory.addTransaction(countDownLatch);
-                    } catch (Exception e) {
-                        fail();
-                    }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    entryFactory.addTransaction(countDownLatch);
+                } catch (Exception e) {
+                    fail();
                 }
-            });
-        }
-
-        for (Thread thread : mThreads) {
-            thread.start();
-        }
+            }
+        }.start();
 
         try {
+            entryFactory.addTransaction(countDownLatch);
             countDownLatch.await();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             fail();
         }
 
-        long count = new Select()
-                .count()
-                .from(Entry.class)
-                .count();
+        long count = new Select().count().from(Entry.class).count();
 
-        assertEquals(Consts.ITEMS_COUNT * THREAD_COUNT, count);
+        assertEquals(Consts.ITEMS_COUNT * 2, count);
     }
 
     public void testInsertToTwoTables() throws Throwable {
-        final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
         final EntryFactory<Entry1> entryFactory1 = new EntryFactory<>(Entry1.class);
-        final EntryFactory<Entry2> entryFactory2 = new EntryFactory<>(Entry2.class);
-
-        for (int i = 0; i < THREAD_COUNT; ++i) {
-            final boolean b = (i % 2 == 0);
-            mThreads.add(new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        if (b) {
-                            entryFactory1.addTransaction(countDownLatch);
-                        } else {
-                            entryFactory2.addTransaction(countDownLatch);
-                        }
-                    } catch (Exception e) {
-                        fail();
-                    }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    entryFactory1.addTransaction(countDownLatch);
+                } catch (Exception e) {
+                    fail();
                 }
-            });
-        }
+            }
+        }.start();
 
-        for (Thread thread : mThreads) {
-            thread.start();
-        }
-
+        EntryFactory<Entry2> entryFactory2 = new EntryFactory<>(Entry2.class);
         try {
+            entryFactory2.addTransaction(countDownLatch);
             countDownLatch.await();
         } catch (InterruptedException e) {
             fail();
         }
 
-        long count1 = new Select()
-                .count()
-                .from(Entry1.class)
-                .count();
-        long count2 = new Select()
-                .count()
-                .from(Entry2.class)
-                .count();
+        long count1 = new Select().count().from(Entry1.class).count();
+        long count2 = new Select().count().from(Entry2.class).count();
 
-        assertEquals(Consts.ITEMS_COUNT * THREAD_COUNT, count1 + count2);
+        assertEquals(Consts.ITEMS_COUNT * 2, count1 + count2);
     }
 
     private class EntryFactory<T extends Entry> {
