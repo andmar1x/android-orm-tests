@@ -1,11 +1,11 @@
 package org.andmar1x.androidormtests;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-public class TestActivity extends ActionBarActivity implements View.OnClickListener {
+public class TestActivity extends AppCompatActivity implements View.OnClickListener {
 
     protected Button mAddEntryButton;
 
