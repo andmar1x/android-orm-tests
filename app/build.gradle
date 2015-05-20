@@ -44,7 +44,7 @@ dependencies {
     compile "com.raizlabs.android:DBFlow:$dbflowVer"
 
     // Realm
-    compile "io.realm:realm-android:0.80.2-SNAPSHOT"
+    compile "io.realm:realm-android:0.80.3-SNAPSHOT"
 
     // Ollie
     compile "com.michaelpardo:ollie:$ollieVer"
