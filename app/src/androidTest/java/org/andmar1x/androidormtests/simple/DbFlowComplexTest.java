@@ -1,5 +1,6 @@
 package org.andmar1x.androidormtests.simple;
 
+import android.support.annotation.Nullable;
 import android.test.AndroidTestCase;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -8,11 +9,14 @@ import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.runtime.transaction.process.InsertModelTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
+import com.raizlabs.android.dbflow.runtime.transaction.process.UpdateModelListTransaction;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import org.andmar1x.androidormtests.Consts;
 import org.andmar1x.androidormtests.dbflow.Entry;
+import org.andmar1x.androidormtests.dbflow.Entry$Table;
 import org.andmar1x.androidormtests.dbflow.Entry1;
 import org.andmar1x.androidormtests.dbflow.Entry2;
 
@@ -46,12 +50,12 @@ public class DbFlowComplexTest extends AndroidTestCase {
 
     public void testInsertToOneTable() throws Throwable {
         final CountDownLatch countDownLatch = new CountDownLatch(2);
-        final EntryFactory<Entry> entryFactory = new EntryFactory<>(Entry.class);
+        final EntryCreator<Entry> entryCreator = new EntryCreator<>(Entry.class);
         new Thread() {
             @Override
             public void run() {
                 try {
-                    entryFactory.addTransaction(countDownLatch);
+                    entryCreator.createInsertTransaction(countDownLatch);
                 } catch (Exception e) {
                     fail();
                 }
@@ -59,7 +63,7 @@ public class DbFlowComplexTest extends AndroidTestCase {
         }.start();
 
         try {
-            entryFactory.addTransaction(countDownLatch);
+            entryCreator.createInsertTransaction(countDownLatch);
             countDownLatch.await();
         } catch (Exception e) {
             fail();
@@ -72,21 +76,21 @@ public class DbFlowComplexTest extends AndroidTestCase {
 
     public void testInsertToTwoTables() throws Throwable {
         final CountDownLatch countDownLatch = new CountDownLatch(2);
-        final EntryFactory<Entry1> entryFactory1 = new EntryFactory<>(Entry1.class);
+        final EntryCreator<Entry1> entryCreator1 = new EntryCreator<>(Entry1.class);
         new Thread() {
             @Override
             public void run() {
                 try {
-                    entryFactory1.addTransaction(countDownLatch);
+                    entryCreator1.createInsertTransaction(countDownLatch);
                 } catch (Exception e) {
                     fail();
                 }
             }
         }.start();
 
-        EntryFactory<Entry2> entryFactory2 = new EntryFactory<>(Entry2.class);
+        EntryCreator<Entry2> entryCreator2 = new EntryCreator<>(Entry2.class);
         try {
-            entryFactory2.addTransaction(countDownLatch);
+            entryCreator2.createInsertTransaction(countDownLatch);
             countDownLatch.await();
         } catch (InterruptedException e) {
             fail();
@@ -98,11 +102,57 @@ public class DbFlowComplexTest extends AndroidTestCase {
         assertEquals(Consts.ITEMS_COUNT * 2, count1 + count2);
     }
 
-    private class EntryFactory<T extends Entry> {
+    public void testInsertToOneTableAndUpdateAnother() throws Throwable {
+        final CountDownLatch countDownLatch = new CountDownLatch(3);
+
+        final EntryCreator<Entry2> entryCreator2 = new EntryCreator<>(Entry2.class);
+        entryCreator2.createInsertTransaction(countDownLatch);
+
+        final EntryCreator<Entry1> entryCreator1 = new EntryCreator<>(Entry1.class);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    entryCreator1.createInsertTransaction(countDownLatch);
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+        }.start();
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    entryCreator2.createUpdateTransaction(countDownLatch);
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+        }.start();
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        long countTrue = new Select().count().from(Entry2.class)
+                .where(Condition.column(Entry$Table.BOOLEANVALUE).eq("1")).count();
+
+        assertEquals(Consts.ITEMS_COUNT, countTrue);
+
+        long count1 = new Select().count().from(Entry1.class).count();
+        long count2 = new Select().count().from(Entry2.class).count();
+
+        assertEquals(Consts.ITEMS_COUNT * 2, count1 + count2);
+    }
+
+    private class EntryCreator<T extends Entry> {
 
         private final Class<T> mHandlerClass;
 
-        public EntryFactory(final Class<T> handlerClass) {
+        public EntryCreator(final Class<T> handlerClass) {
             mHandlerClass = handlerClass;
         }
 
@@ -118,7 +168,7 @@ public class DbFlowComplexTest extends AndroidTestCase {
             return entry;
         }
 
-        public void addTransaction(final CountDownLatch countDownLatch)
+        public void createInsertTransaction(@Nullable final CountDownLatch countDownLatch)
                 throws InstantiationException, IllegalAccessException {
             List<T> entries = new ArrayList<>();
             for (int i = 1; i <= Consts.ITEMS_COUNT; ++i) {
@@ -129,7 +179,9 @@ public class DbFlowComplexTest extends AndroidTestCase {
                     .result(new TransactionListener<List<T>>() {
                         @Override
                         public void onResultReceived(List<T> ts) {
-                            countDownLatch.countDown();
+                            if (countDownLatch != null) {
+                                countDownLatch.countDown();
+                            }
                         }
 
                         @Override
@@ -143,6 +195,36 @@ public class DbFlowComplexTest extends AndroidTestCase {
                         }
                     });
             InsertModelTransaction<T> transaction = new InsertModelTransaction<>(processModelInfo);
+            TransactionManager.getInstance().addTransaction(transaction);
+        }
+
+        public void createUpdateTransaction(@Nullable final CountDownLatch countDownLatch)
+                throws InstantiationException, IllegalAccessException {
+            List<T> entries = new Select().from(mHandlerClass).queryList();
+            for (T entry : entries) {
+                entry.booleanValue = true;
+            }
+
+            ProcessModelInfo<T> processModelInfo = ProcessModelInfo.withModels(entries)
+                    .result(new TransactionListener<List<T>>() {
+                        @Override
+                        public void onResultReceived(List<T> ts) {
+                            if (countDownLatch != null) {
+                                countDownLatch.countDown();
+                            }
+                        }
+
+                        @Override
+                        public boolean onReady(BaseTransaction<List<T>> baseTransaction) {
+                            return true;
+                        }
+
+                        @Override
+                        public boolean hasResult(BaseTransaction<List<T>> baseTransaction, List<T> ts) {
+                            return true;
+                        }
+                    });
+            UpdateModelListTransaction<T> transaction = new UpdateModelListTransaction<>(processModelInfo);
             TransactionManager.getInstance().addTransaction(transaction);
         }
     }
