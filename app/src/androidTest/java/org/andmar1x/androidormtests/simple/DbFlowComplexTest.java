@@ -177,23 +177,23 @@ public class DbFlowComplexTest extends AndroidTestCase {
 
             ProcessModelInfo<T> processModelInfo = ProcessModelInfo.withModels(entries)
                     .result(new TransactionListener<List<T>>() {
-                        @Override
-                        public void onResultReceived(List<T> ts) {
-                            if (countDownLatch != null) {
-                                countDownLatch.countDown();
-                            }
-                        }
+                @Override
+                public void onResultReceived(List<T> ts) {
+                    if (countDownLatch != null) {
+                        countDownLatch.countDown();
+                    }
+                }
 
-                        @Override
-                        public boolean onReady(BaseTransaction<List<T>> baseTransaction) {
-                            return true;
-                        }
+                @Override
+                public boolean onReady(BaseTransaction<List<T>> baseTransaction) {
+                    return true;
+                }
 
-                        @Override
-                        public boolean hasResult(BaseTransaction<List<T>> baseTransaction, List<T> ts) {
-                            return true;
-                        }
-                    });
+                @Override
+                public boolean hasResult(BaseTransaction<List<T>> baseTransaction, List<T> ts) {
+                    return true;
+                }
+            });
             InsertModelTransaction<T> transaction = new InsertModelTransaction<>(processModelInfo);
             TransactionManager.getInstance().addTransaction(transaction);
         }
