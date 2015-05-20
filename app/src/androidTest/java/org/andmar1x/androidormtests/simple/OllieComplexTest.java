@@ -10,6 +10,7 @@ import org.andmar1x.androidormtests.ollie.EntryDb;
 import org.andmar1x.androidormtests.ollie.TransactionHelper;
 
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import ollie.Ollie;
@@ -39,19 +40,19 @@ public class OllieComplexTest extends AndroidTestCase {
 
     public void testInsertToOneTable() throws Throwable {
         final CountDownLatch countDownLatch = new CountDownLatch(2);
-        final EntryFactory<Entry> entryFactory = new EntryFactory<>(Entry.class);
+        final EntryCreator<Entry> entryCreator = new EntryCreator<>(Entry.class);
         new Thread() {
             @Override
             public void run() {
                 try {
-                    entryFactory.addTransaction(countDownLatch);
+                    entryCreator.createInsertTransaction(countDownLatch);
                 } catch (Exception e) {
                     fail();
                 }
             }
         }.start();
 
-        entryFactory.addTransaction(countDownLatch);
+        entryCreator.createInsertTransaction(countDownLatch);
         try {
             countDownLatch.await();
         } catch (Exception e) {
@@ -65,20 +66,20 @@ public class OllieComplexTest extends AndroidTestCase {
 
     public void testInsertToTwoTables() throws Throwable {
         final CountDownLatch countDownLatch = new CountDownLatch(2);
-        final EntryFactory<Entry1> entryFactory1 = new EntryFactory<>(Entry1.class);
+        final EntryCreator<Entry1> entryCreator1 = new EntryCreator<>(Entry1.class);
         new Thread() {
             @Override
             public void run() {
                 try {
-                    entryFactory1.addTransaction(countDownLatch);
+                    entryCreator1.createInsertTransaction(countDownLatch);
                 } catch (Exception e) {
                     fail();
                 }
             }
         }.start();
 
-        EntryFactory<Entry2> entryFactory2 = new EntryFactory<>(Entry2.class);
-        entryFactory2.addTransaction(countDownLatch);
+        EntryCreator<Entry2> entryCreator2 = new EntryCreator<>(Entry2.class);
+        entryCreator2.createInsertTransaction(countDownLatch);
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {
@@ -91,11 +92,57 @@ public class OllieComplexTest extends AndroidTestCase {
         assertEquals(Consts.ITEMS_COUNT * 2, count1 + count2);
     }
 
-    private class EntryFactory<T extends Entry> {
+    public void testInsertToOneTableAndUpdateAnother() throws Throwable {
+        final CountDownLatch countDownLatch = new CountDownLatch(3);
+
+        final EntryCreator<Entry2> entryCreator2 = new EntryCreator<>(Entry2.class);
+        entryCreator2.createInsertTransaction(countDownLatch);
+
+        final EntryCreator<Entry1> entryCreator1 = new EntryCreator<>(Entry1.class);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    entryCreator1.createInsertTransaction(countDownLatch);
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+        }.start();
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    entryCreator2.createUpdateTransaction(countDownLatch);
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+        }.start();
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            fail();
+        }
+
+        long countTrue = Select.columns("COUNT(*)").from(Entry2.class).where("booleanValue=1")
+                .fetchValue(Integer.class);
+
+        assertEquals(Consts.ITEMS_COUNT, countTrue);
+
+        long count1 = Select.columns("COUNT(*)").from(Entry1.class).fetchValue(Integer.class);
+        long count2 = Select.columns("COUNT(*)").from(Entry2.class).fetchValue(Integer.class);
+
+        assertEquals(Consts.ITEMS_COUNT * 2, count1 + count2);
+    }
+
+    private class EntryCreator<T extends Entry> {
 
         private final Class<T> mHandlerClass;
 
-        public EntryFactory(final Class<T> handlerClass) {
+        public EntryCreator(final Class<T> handlerClass) {
             mHandlerClass = handlerClass;
         }
 
@@ -111,7 +158,7 @@ public class OllieComplexTest extends AndroidTestCase {
             return entry;
         }
 
-        public void addTransaction(final CountDownLatch countDownLatch) {
+        public void createInsertTransaction(final CountDownLatch countDownLatch) {
             TransactionHelper.doInTransaction(new TransactionHelper.Callback() {
                 @Override
                 public void onProcess() {
@@ -133,7 +180,35 @@ public class OllieComplexTest extends AndroidTestCase {
 
                 @Override
                 public void onResultReceived() {
-                    countDownLatch.countDown();
+                    if (countDownLatch != null) {
+                        countDownLatch.countDown();
+                    }
+                }
+            });
+        }
+
+        public void createUpdateTransaction(final CountDownLatch countDownLatch) {
+            final List<T> entries = Select.from(mHandlerClass).fetch();
+
+            TransactionHelper.doInTransaction(new TransactionHelper.Callback() {
+                @Override
+                public void onProcess() {
+                    for (T entry : entries) {
+                        entry.booleanValue = true;
+                        entry.save();
+                    }
+                }
+
+                @Override
+                public void onFail() {
+                    fail();
+                }
+
+                @Override
+                public void onResultReceived() {
+                    if (countDownLatch != null) {
+                        countDownLatch.countDown();
+                    }
                 }
             });
         }
