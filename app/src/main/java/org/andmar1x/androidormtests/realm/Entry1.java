@@ -6,9 +6,9 @@ import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 /**
- * Created by andmar1x on 4/29/15.
+ * Created by andmar1x on 5/20/15.
  */
-public class Entry extends RealmObject {
+public class Entry1 extends RealmObject {
 
     private long longValue;
 
