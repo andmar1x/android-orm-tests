@@ -1,6 +1,7 @@
 package org.andmar1x.androidormtests.dbflow;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
@@ -12,7 +13,8 @@ import java.util.Date;
 @Table(databaseName = EntryDb.NAME)
 public class Entry extends BaseModel {
 
-    @Column(columnType = Column.PRIMARY_KEY)
+    @Column
+    @PrimaryKey(autoincrement = true)
     public Long longValue;
 
     @Column

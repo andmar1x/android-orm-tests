@@ -78,6 +78,6 @@ public class DbFlowSimpleTest extends SimpleTestCase {
         entry.stringValue = Entry.class.getSimpleName() + " " + i;
         entry.dateValue = new Date();
 
-        entry.insert(false);
+        entry.insert();
     }
 }

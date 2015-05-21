@@ -44,7 +44,7 @@ public class DatabaseActivity extends TestActivity {
         entry.stringValue = String.valueOf(i);
         entry.dateValue = new Date();
 
-        entry.insert(false);
+        entry.insert();
 
         List<Entry> results = new Select().from(Entry.class).queryList();
         if (!results.isEmpty()) {
