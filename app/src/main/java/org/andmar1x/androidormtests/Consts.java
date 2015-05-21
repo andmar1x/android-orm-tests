@@ -5,5 +5,5 @@ package org.andmar1x.androidormtests;
  */
 public class Consts {
 
-    public static int ITEMS_COUNT = 100;
+    public static int ITEMS_COUNT = 1000;
 }
