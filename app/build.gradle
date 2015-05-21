@@ -28,7 +28,7 @@ android {
     }
 }
 
-def dbflowVer = '1.8.1'
+def dbflowVer = '2.0.0'
 def ollieVer = '0.3.1'
 def powermockVer = '1.6.2'
 
